@@ -43,9 +43,10 @@ def create_final_edit(video_urls: List[str], scenes: List[Dict[str, Any]]) -> st
         for f in temp_files:
             clip = VideoFileClip(f)
             # Add a gentle 0.5-second fade in and fade out transition for each clip
-            # Using vfx to ensure standard behavior in moviepy 1.x
-            import moviepy.video.fx.all as vfx
-            clip = clip.fx(vfx.fadein, 0.5).fx(vfx.fadeout, 0.5)
+            # Using direct imports to satisfy static type checkers like Pyright
+            from moviepy.video.fx.fadein import fadein
+            from moviepy.video.fx.fadeout import fadeout
+            clip = clip.fx(fadein, 0.5).fx(fadeout, 0.5)
             clips.append(clip)
             
         # Concatenate them into a single video

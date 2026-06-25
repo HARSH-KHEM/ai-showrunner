@@ -1,0 +1,666 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>SHOWRUNNER - AI Film Production</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&amp;family=Inter:wght@400;500;700&amp;family=JetBrains+Mono:wght@500&amp;family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue:wght@100..900&amp;family=Inter:wght@100..900&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "on-tertiary-container": "#fff7f1",
+                    "surface-dim": "#131313",
+                    "outline-variant": "#5e3f3b",
+                    "on-surface": "#e5e2e1",
+                    "on-primary-fixed-variant": "#930007",
+                    "surface-container-low": "#1c1b1b",
+                    "on-secondary": "#3c0091",
+                    "primary-fixed-dim": "#ffb4aa",
+                    "secondary-fixed-dim": "#d0bcff",
+                    "on-secondary-fixed": "#23005c",
+                    "primary": "#ffb4aa",
+                    "surface-bright": "#3a3939",
+                    "tertiary": "#ffb95f",
+                    "tertiary-fixed-dim": "#ffb95f",
+                    "on-error": "#690005",
+                    "secondary": "#d0bcff",
+                    "surface-variant": "#353534",
+                    "on-surface-variant": "#e9bcb6",
+                    "on-secondary-container": "#c4abff",
+                    "secondary-container": "#571bc1",
+                    "background": "#131313",
+                    "on-tertiary-fixed": "#2a1700",
+                    "on-secondary-fixed-variant": "#5516be",
+                    "surface-container-highest": "#353534",
+                    "on-primary-fixed": "#410001",
+                    "on-tertiary-fixed-variant": "#653e00",
+                    "on-error-container": "#ffdad6",
+                    "outline": "#af8782",
+                    "tertiary-fixed": "#ffddb8",
+                    "secondary-fixed": "#e9ddff",
+                    "primary-container": "#e50914",
+                    "on-primary-container": "#fff7f6",
+                    "on-background": "#e5e2e1",
+                    "inverse-surface": "#e5e2e1",
+                    "surface-container": "#201f1f",
+                    "tertiary-container": "#a06500",
+                    "on-tertiary": "#472a00",
+                    "on-primary": "#690003",
+                    "surface-container-high": "#2a2a2a",
+                    "inverse-primary": "#c0000c",
+                    "surface-container-lowest": "#0e0e0e",
+                    "inverse-on-surface": "#313030",
+                    "error-container": "#93000a",
+                    "surface-tint": "#ffb4aa",
+                    "surface": "#131313",
+                    "primary-fixed": "#ffdad5",
+                    "error": "#ffb4ab"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "unit": "4px",
+                    "margin-desktop": "48px",
+                    "gutter": "24px",
+                    "stack-sm": "8px",
+                    "stack-md": "16px",
+                    "stack-lg": "32px",
+                    "margin-mobile": "16px"
+            },
+            "fontFamily": {
+                    "headline-lg": ["Bebas Neue"],
+                    "body-md": ["Inter"],
+                    "terminal-sm": ["JetBrains Mono"],
+                    "headline-lg-mobile": ["Bebas Neue"],
+                    "label-caps": ["Inter"],
+                    "display-xl": ["Bebas Neue"]
+            },
+            "fontSize": {
+                    "headline-lg": ["48px", {"lineHeight": "48px", "letterSpacing": "0.05em", "fontWeight": "400"}],
+                    "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                    "terminal-sm": ["13px", {"lineHeight": "18px", "letterSpacing": "0.02em", "fontWeight": "500"}],
+                    "headline-lg-mobile": ["32px", {"lineHeight": "32px", "letterSpacing": "0.05em", "fontWeight": "400"}],
+                    "label-caps": ["12px", {"lineHeight": "16px", "letterSpacing": "0.1em", "fontWeight": "700"}],
+                    "display-xl": ["96px", {"lineHeight": "90px", "letterSpacing": "0.02em", "fontWeight": "400"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        @keyframes scanline {
+            0% { transform: translateY(-100%); }
+            100% { transform: translateY(100%); }
+        }
+        .scanline-overlay::after {
+            content: "";
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: linear-gradient(to bottom, transparent 50%, rgba(0, 0, 0, 0.1) 51%);
+            background-size: 100% 4px;
+            pointer-events: none;
+            z-index: 10;
+        }
+        .shimmer {
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            background-size: 200% 100%;
+            animation: shimmer 2s infinite linear;
+        }
+        @keyframes shimmer {
+            0% { background-position: -200% 0; }
+            100% { background-position: 200% 0; }
+        }
+        .reveal-flash {
+            animation: flash 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        @keyframes flash {
+            0% { background: white; opacity: 1; }
+            100% { background: transparent; opacity: 0; }
+        }
+        .stagger-in {
+            opacity: 0;
+            transform: translateY(20px);
+            animation: fadeInUp 0.8s forwards;
+        }
+        @keyframes fadeInUp {
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .crimson-glow-border {
+            box-shadow: 0 0 15px -5px rgba(229, 9, 20, 0.5), inset 0 0 10px -5px rgba(229, 9, 20, 0.3);
+            border: 1px solid rgba(229, 9, 20, 0.4);
+        }
+        .production-gradient {
+            background: linear-gradient(90deg, #e50914 0%, #571bc1 50%, #ffb95f 100%);
+        }
+    </style>
+</head>
+<body class="bg-background text-on-surface selection:bg-primary-container selection:text-white font-body-md overflow-x-hidden">
+<!-- GLOBAL SHADER BACKGROUND -->
+<!-- STITCH_SHADER_START:ANIMATION_6 class="fixed inset-0 w-full h-full opacity-60 z-[-1]" -->
+<div class="fixed inset-0 w-full h-full opacity-60 z-[-1]" style="display:block;">
+<canvas id="shader-canvas-ANIMATION_6" style="display:block;width:100%;height:100%"></canvas>
+<script>
+(function() {
+  const canvas = document.getElementById('shader-canvas-ANIMATION_6');
+
+  // Sync the WebGL drawing-buffer size with the CSS-driven layout size.
+  // This fires on initial layout and whenever the element is resized.
+  function syncSize() {
+    const w = canvas.clientWidth  || 1280;
+    const h = canvas.clientHeight || 720;
+    if (canvas.width !== w || canvas.height !== h) {
+      canvas.width  = w;
+      canvas.height = h;
+    }
+  }
+  if (typeof ResizeObserver !== 'undefined') {
+    new ResizeObserver(syncSize).observe(canvas);
+  }
+  syncSize();
+
+  const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
+  if (!gl) return;
+  const vs = `attribute vec2 a_position;
+varying vec2 v_texCoord;
+void main() {
+  v_texCoord = a_position * 0.5 + 0.5;
+  gl_Position = vec4(a_position, 0.0, 1.0);
+}`;
+  const fs = `precision highp float;
+uniform float u_time;
+uniform vec2 u_resolution;
+varying vec2 v_texCoord;
+
+float noise(vec2 p) {
+    return fract(sin(dot(p, vec2(12.9898, 78.233))) * 43758.5453);
+}
+
+void main() {
+    vec2 uv = gl_FragCoord.xy / u_resolution.xy;
+    
+    // Pure cinematic black base
+    vec3 color = vec3(0.031, 0.031, 0.031); // #080808
+    
+    // Subtle red-to-purple gradient bleeds in corners
+    float d1 = distance(uv, vec2(0.0, 1.0)); // Top-left
+    float d2 = distance(uv, vec2(1.0, 0.0)); // Bottom-right
+    
+    vec3 crimson = vec3(0.898, 0.035, 0.078); // #e50914
+    vec3 violet = vec3(0.545, 0.361, 0.965); // #8b5cf6
+    
+    color += crimson * (1.0 - smoothstep(0.0, 0.7, d1)) * 0.12;
+    color += violet * (1.0 - smoothstep(0.0, 0.7, d2)) * 0.12;
+    
+    // Film grain animation
+    float grain = (noise(uv + u_time) - 0.5) * 0.03;
+    color += grain;
+    
+    // Scanlines
+    float scanline = sin(uv.y * 800.0) * 0.015;
+    color -= scanline;
+    
+    // Slight vignette
+    float dist = distance(uv, vec2(0.5));
+    color *= smoothstep(1.2, 0.5, dist);
+
+    gl_FragColor = vec4(color, 1.0);
+}`;
+  function cs(type, src) {
+    const s = gl.createShader(type);
+    gl.shaderSource(s, src);
+    gl.compileShader(s);
+    return s;
+  }
+  const prog = gl.createProgram();
+  gl.attachShader(prog, cs(gl.VERTEX_SHADER, vs));
+  gl.attachShader(prog, cs(gl.FRAGMENT_SHADER, fs));
+  gl.linkProgram(prog);
+  gl.useProgram(prog);
+  const buf = gl.createBuffer();
+  gl.bindBuffer(gl.ARRAY_BUFFER, buf);
+  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1,-1, 1,-1, -1,1, 1,1]), gl.STATIC_DRAW);
+  const pos = gl.getAttribLocation(prog, 'a_position');
+  gl.enableVertexAttribArray(pos);
+  gl.vertexAttribPointer(pos, 2, gl.FLOAT, false, 0, 0);
+  const uTime = gl.getUniformLocation(prog, 'u_time');
+  const uRes = gl.getUniformLocation(prog, 'u_resolution');
+  const uMouse = gl.getUniformLocation(prog, 'u_mouse');
+
+  // u_mouse is in pixel coordinates matching u_resolution (ShaderToy convention).
+  // Shaders that need normalized coords should use: u_mouse / u_resolution.
+  let mouse = { x: canvas.width / 2, y: canvas.height / 2 };
+  window.addEventListener('mousemove', (event) => {
+    const rect = canvas.getBoundingClientRect();
+    if (rect.width && rect.height) {
+      const nx = (event.clientX - rect.left) / rect.width;
+      const ny = 1.0 - (event.clientY - rect.top) / rect.height;
+      mouse.x = nx * canvas.width;
+      mouse.y = ny * canvas.height;
+    }
+  });
+
+  function render(t) {
+    if (typeof ResizeObserver === 'undefined') syncSize();
+    gl.viewport(0, 0, canvas.width, canvas.height);
+    if (uTime) gl.uniform1f(uTime, t * 0.001);
+    if (uRes) gl.uniform2f(uRes, canvas.width, canvas.height);
+    if (uMouse) gl.uniform2f(uMouse, mouse.x, mouse.y);
+    gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+    requestAnimationFrame(render);
+  }
+  render(0);
+})();
+</script>
+</div>
+<!-- STITCH_SHADER_END:ANIMATION_6 -->
+<!-- TopNavBar -->
+<nav class="fixed top-0 left-0 w-full z-50 flex justify-between items-center px-margin-mobile md:px-margin-desktop h-16 bg-black/40 backdrop-blur-xl border-b border-primary-container">
+<div class="flex items-center gap-4">
+<span class="font-headline-lg-mobile text-headline-lg-mobile text-primary tracking-tighter">SHOWRUNNER</span>
+<span class="hidden md:block h-4 w-[1px] bg-outline-variant"></span>
+<div class="hidden md:flex gap-2">
+<span class="px-2 py-0.5 border border-tertiary text-tertiary text-label-caps font-label-caps rounded-sm">WAN 2.1 ELITE</span>
+<span class="px-2 py-0.5 border border-primary text-primary text-label-caps font-label-caps rounded-sm">DIRECTOR ACCESS</span>
+</div>
+</div>
+<div class="flex items-center gap-stack-md">
+<span class="hidden lg:block font-terminal-sm text-terminal-sm text-on-surface-variant opacity-60">Powered by Qwen AI • Alibaba Cloud</span>
+<button class="flex items-center gap-2 text-on-surface-variant hover:text-primary transition-colors duration-300">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">account_circle</span>
+</button>
+</div>
+</nav>
+<main class="relative z-10 pt-16">
+<!-- HERO SECTION -->
+<section class="min-h-[calc(100vh-64px)] flex flex-col justify-center items-center text-center px-margin-mobile md:px-margin-desktop" id="hero">
+<div class="max-w-6xl space-y-stack-md">
+<h1 class="font-display-xl text-[64px] md:text-display-xl flex flex-col leading-none">
+<span class="stagger-in" style="animation-delay: 0.2s">ONE PROMPT.</span>
+<span class="stagger-in" style="animation-delay: 0.4s">FIVE AI AGENTS.</span>
+<span class="stagger-in text-primary-container" style="animation-delay: 0.6s">ONE SHORT DRAMA.</span>
+</h1>
+<div class="w-24 h-1 bg-white mx-auto stagger-in" style="animation-delay: 0.8s"></div>
+<p class="font-terminal-sm text-terminal-sm text-on-surface-variant stagger-in opacity-80" style="animation-delay: 1s">
+                    SYSTEM READY // READY FOR INPUT // CINEMATIC ENGINE ENGAGED
+                </p>
+</div>
+<!-- Scroll Indicator -->
+<div class="absolute bottom-12 animate-bounce opacity-40">
+<span class="material-symbols-outlined text-4xl">expand_more</span>
+</div>
+</section>
+<!-- INPUT SECTION -->
+<section class="py-24 px-margin-mobile md:px-margin-desktop max-w-4xl mx-auto" id="input-section">
+<div class="bg-black/60 backdrop-blur-2xl crimson-glow-border rounded-xl p-8 md:p-12 relative overflow-hidden group">
+<!-- Film Grain Overlay -->
+<div class="absolute inset-0 opacity-[0.03] pointer-events-none bg-[url('https://www.transparenttextures.com/patterns/stardust.png')]"></div>
+<header class="mb-12">
+<span class="text-primary font-label-caps text-label-caps tracking-widest block mb-2">YOUR STORY BEGINS HERE</span>
+<h2 class="font-headline-lg text-headline-lg-mobile md:text-headline-lg border-l-4 border-primary-container pl-6">DESCRIBE THE SCENE</h2>
+</header>
+<div class="space-y-8">
+<div class="relative">
+<textarea class="w-full bg-surface-container-low border border-outline-variant focus:border-primary-container text-on-surface p-6 rounded-lg font-body-md text-lg min-h-[160px] transition-all outline-none" id="story-prompt" placeholder="A rainy street in Neo-Tokyo. A lone detective finds a mysterious glowing briefcase..."></textarea>
+</div>
+<div class="space-y-4">
+<span class="font-terminal-sm text-terminal-sm text-on-surface-variant block uppercase tracking-tighter">Select Cinematic Genre</span>
+<div class="flex flex-wrap gap-2">
+<button class="genre-chip px-4 py-2 border border-outline-variant hover:border-primary rounded-full font-label-caps text-label-caps transition-all text-on-surface-variant" onclick="selectGenre(this)">NOIR THRILLER</button>
+<button class="genre-chip px-4 py-2 border border-outline-variant hover:border-primary rounded-full font-label-caps text-label-caps transition-all text-on-surface-variant" onclick="selectGenre(this)">OFFICE ROMANCE</button>
+<button class="genre-chip px-4 py-2 border border-outline-variant hover:border-primary rounded-full font-label-caps text-label-caps transition-all text-on-surface-variant" onclick="selectGenre(this)">SCI-FI MYSTERY</button>
+<button class="genre-chip px-4 py-2 border border-outline-variant hover:border-primary rounded-full font-label-caps text-label-caps transition-all text-on-surface-variant" onclick="selectGenre(this)">HEIST</button>
+<button class="genre-chip px-4 py-2 border border-outline-variant hover:border-primary rounded-full font-label-caps text-label-caps transition-all text-on-surface-variant" onclick="selectGenre(this)">SUPERNATURAL</button>
+<button class="genre-chip px-4 py-2 border border-outline-variant hover:border-primary rounded-full font-label-caps text-label-caps transition-all text-on-surface-variant" onclick="selectGenre(this)">REVENGE</button>
+</div>
+</div>
+<button class="w-full py-6 bg-primary-container text-white font-headline-lg text-2xl flex items-center justify-center gap-4 hover:scale-[1.02] active:scale-95 transition-all shadow-lg shadow-primary-container/20 group" id="start-btn" onclick="startProduction()">
+<span>BEGIN PRODUCTION</span>
+<span class="material-symbols-outlined text-4xl group-hover:translate-x-2 transition-transform">play_arrow</span>
+</button>
+</div>
+</div>
+</section>
+<!-- PRODUCTION PIPELINE -->
+<section class="hidden py-12 px-margin-mobile md:px-margin-desktop bg-surface-container-lowest/80 border-y border-outline-variant/30 transition-all duration-700 opacity-0" id="pipeline">
+<div class="max-w-6xl mx-auto space-y-12">
+<div class="flex justify-between items-end">
+<div>
+<div class="flex items-center gap-2 mb-2">
+<span class="w-3 h-3 bg-red-600 rounded-full animate-pulse"></span>
+<span class="font-terminal-sm text-terminal-sm text-red-600 font-bold uppercase tracking-widest">Live Production Engine</span>
+</div>
+<h2 class="font-headline-lg text-headline-lg-mobile md:text-headline-lg">AI AGENT CLUSTER ACTIVE</h2>
+</div>
+<div class="text-right">
+<span class="font-terminal-sm text-terminal-sm text-primary mb-2 block" id="overall-progress-text">0% COMPLETE</span>
+<div class="w-48 h-1 bg-surface-container-high rounded-full overflow-hidden">
+<div class="h-full production-gradient w-0 transition-all duration-500" id="overall-progress-bar"></div>
+</div>
+</div>
+</div>
+<!-- Bento Grid Agents -->
+<div class="grid grid-cols-1 md:grid-cols-5 gap-4">
+<!-- Agent Card -->
+<div class="bg-black/40 border border-outline-variant/40 p-4 rounded-lg space-y-4" id="agent-1">
+<div class="flex justify-between items-start">
+<span class="font-label-caps text-[10px] text-on-surface-variant">AGENT 01</span>
+<span class="status-badge px-2 py-0.5 bg-surface-container-high text-[10px] font-bold rounded">STANDBY</span>
+</div>
+<h3 class="font-label-caps text-sm tracking-widest text-primary">SCRIPT WRITER</h3>
+<div class="h-1 bg-surface-container-high rounded-full overflow-hidden">
+<div class="progress h-full bg-primary w-0 transition-all"></div>
+</div>
+</div>
+<div class="bg-black/40 border border-outline-variant/40 p-4 rounded-lg space-y-4" id="agent-2">
+<div class="flex justify-between items-start">
+<span class="font-label-caps text-[10px] text-on-surface-variant">AGENT 02</span>
+<span class="status-badge px-2 py-0.5 bg-surface-container-high text-[10px] font-bold rounded">STANDBY</span>
+</div>
+<h3 class="font-label-caps text-sm tracking-widest text-primary">STORYBOARD DIRECTOR</h3>
+<div class="h-1 bg-surface-container-high rounded-full overflow-hidden">
+<div class="progress h-full bg-primary w-0 transition-all"></div>
+</div>
+</div>
+<div class="bg-black/40 border border-outline-variant/40 p-4 rounded-lg space-y-4" id="agent-3">
+<div class="flex justify-between items-start">
+<span class="font-label-caps text-[10px] text-on-surface-variant">AGENT 03</span>
+<span class="status-badge px-2 py-0.5 bg-surface-container-high text-[10px] font-bold rounded">STANDBY</span>
+</div>
+<h3 class="font-label-caps text-sm tracking-widest text-primary">CONTINUITY SUPERVISOR</h3>
+<div class="h-1 bg-surface-container-high rounded-full overflow-hidden">
+<div class="progress h-full bg-primary w-0 transition-all"></div>
+</div>
+</div>
+<div class="bg-black/40 border border-outline-variant/40 p-4 rounded-lg space-y-4" id="agent-4">
+<div class="flex justify-between items-start">
+<span class="font-label-caps text-[10px] text-on-surface-variant">AGENT 04</span>
+<span class="status-badge px-2 py-0.5 bg-surface-container-high text-[10px] font-bold rounded">STANDBY</span>
+</div>
+<h3 class="font-label-caps text-sm tracking-widest text-primary">VIDEO GENERATOR</h3>
+<div class="h-1 bg-surface-container-high rounded-full overflow-hidden">
+<div class="progress h-full bg-primary w-0 transition-all"></div>
+</div>
+</div>
+<div class="bg-black/40 border border-outline-variant/40 p-4 rounded-lg space-y-4" id="agent-5">
+<div class="flex justify-between items-start">
+<span class="font-label-caps text-[10px] text-on-surface-variant">AGENT 05</span>
+<span class="status-badge px-2 py-0.5 bg-surface-container-high text-[10px] font-bold rounded">STANDBY</span>
+</div>
+<h3 class="font-label-caps text-sm tracking-widest text-primary">FILM EDITOR</h3>
+<div class="h-1 bg-surface-container-high rounded-full overflow-hidden">
+<div class="progress h-full bg-primary w-0 transition-all"></div>
+</div>
+</div>
+</div>
+<!-- DIRECTOR'S MONITOR -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+<div class="md:col-span-2 relative">
+<div class="bg-surface-container-lowest border border-outline-variant rounded-lg h-64 overflow-hidden scanline-overlay font-terminal-sm text-terminal-sm p-4 text-amber-500">
+<div class="space-y-1" id="terminal-content">
+<!-- Logs will stream here -->
+<div class="flex gap-4 opacity-50"><span class="flex-shrink-0 text-white/40">[00:00:01]</span><span>INITIALIZING PRODUCTION ENGINE...</span></div>
+<div class="flex gap-4 opacity-50"><span class="flex-shrink-0 text-white/40">[00:00:02]</span><span>ESTABLISHING SECURE AGENT COMMUNICATION...</span></div>
+</div>
+</div>
+</div>
+<div class="bg-black/60 border border-outline-variant p-6 rounded-lg flex flex-col justify-center items-center text-center space-y-4">
+<div class="relative w-32 h-32 flex items-center justify-center">
+<svg class="w-full h-full -rotate-90">
+<circle class="text-surface-container-high" cx="64" cy="64" fill="transparent" r="60" stroke="currentColor" stroke-width="4"></circle>
+<circle class="text-primary transition-all duration-300" cx="64" cy="64" fill="transparent" id="circle-progress" r="60" stroke="currentColor" stroke-dasharray="377" stroke-dashoffset="377" stroke-width="4"></circle>
+</svg>
+<span class="absolute font-headline-lg text-2xl" id="circle-percent">0%</span>
+</div>
+<p class="font-label-caps text-xs tracking-widest opacity-60 uppercase">System Latency: 24ms</p>
+</div>
+</div>
+</div>
+</section>
+<!-- COMPLETED SECTION -->
+<section class="hidden relative py-24 px-margin-mobile md:px-margin-desktop overflow-hidden" id="completed-section">
+<div class="absolute inset-0 z-[100] pointer-events-none opacity-0" id="white-flash"></div>
+<div class="max-w-6xl mx-auto space-y-12">
+<header class="flex flex-col md:flex-row md:items-end justify-between gap-6">
+<div class="space-y-4">
+<span class="px-3 py-1 bg-primary-container text-white text-[10px] font-bold tracking-tighter uppercase">Production Complete</span>
+<h2 class="font-headline-lg text-4xl md:text-6xl tracking-tight leading-none">THE SILENT PROTOCOL</h2>
+<div class="flex gap-4 text-terminal-sm text-on-surface-variant font-terminal-sm">
+<span class="flex items-center gap-1"><span class="material-symbols-outlined text-sm">schedule</span> 25 SEC</span>
+<span class="flex items-center gap-1"><span class="material-symbols-outlined text-sm">movie_filter</span> 5 SCENES</span>
+<span class="flex items-center gap-1"><span class="material-symbols-outlined text-sm">precision_manufacturing</span> WAN 2.1 MODEL</span>
+</div>
+</div>
+<div class="flex gap-4">
+<button class="px-8 py-3 bg-white text-black font-bold flex items-center gap-2 hover:bg-white/90 transition-colors">
+<span class="material-symbols-outlined">download</span> DOWNLOAD
+                        </button>
+<button class="px-8 py-3 border border-white text-white font-bold flex items-center gap-2 hover:bg-white/10 transition-colors">
+<span class="material-symbols-outlined">share</span> SHARE
+                        </button>
+</div>
+</header>
+<!-- Master Video Player -->
+<div class="aspect-video bg-black rounded-xl overflow-hidden relative group border border-white/10 shadow-2xl">
+<div class="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent flex items-end p-8 opacity-0 group-hover:opacity-100 transition-opacity">
+<div class="w-full h-1 bg-white/20 rounded-full overflow-hidden">
+<div class="h-full bg-primary-container w-[65%]"></div>
+</div>
+</div>
+<div class="absolute inset-0 flex items-center justify-center">
+<button class="w-20 h-20 bg-primary-container/90 rounded-full flex items-center justify-center text-white scale-100 hover:scale-110 transition-transform">
+<span class="material-symbols-outlined text-5xl">play_arrow</span>
+</button>
+</div>
+<!-- Placeholder Video Graphic -->
+<div class="w-full h-full bg-cover bg-center" data-alt="A cinematic still from an AI-generated film noir. A detective in a trench coat stands on a rain-slicked neon-lit city street at night. The lighting is high-contrast with deep shadows and vibrant crimson highlights reflecting in puddles. The style is hyper-realistic and atmospheric, mimicking 35mm film grain." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuC6xKdt8HGoPNwQaxBGa1z4FKE9hDMRkIV70-7kVOtGqZRQu-22u8W8yg6MEqEp6GNVc4bZNhHf9u0IfC9XhmJQHSr1czSVkj6pchXNebOK8mOhX2Mqo4xn8ZG6mK3ald0-pffd_kJVUPZbZPR6x0fd2O9edt7zjnKNe_Gq2DjVWnSobdHLrFv6_2iI9XJUfzNsopSl3mh4ILDM3NIW7EK3RLeRq6lnHnnvUt-K22bdKw79zXo_0t5bmOas4qWJFgk1n-AslJ1E7n8')"></div>
+</div>
+<!-- Scene Gallery -->
+<div class="space-y-6">
+<h3 class="font-label-caps text-label-caps tracking-widest text-on-surface-variant">STORYBOARD BREAKDOWN</h3>
+<div class="grid grid-cols-2 md:grid-cols-5 gap-4">
+<div class="space-y-2 group">
+<div class="aspect-[4/3] bg-surface-container-high rounded overflow-hidden border border-white/5 group-hover:border-primary/50 transition-colors">
+<div class="w-full h-full bg-cover bg-center grayscale group-hover:grayscale-0 transition-all duration-500" data-alt="Cinematic storyboard scene 1: Wide shot of a futuristic cyberpunk city skyline under heavy rain. Moody purple and blue lighting with bright orange neon signs." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuBsERc8tRLaFb8f6S-Wv-qwFwIPtuw2kepr1dTmSA3nZtJLz63BSOTtHAJGdeJe5ZBxOu7v8Z5zc1DHTu3RciQt045uSVYUKfhBGwJuLa1HPGc6p5CMPmujXZsCaILrQEUsLJ_lfhQxVEzC2JCLVDJCEymRg5pYlD1JSAYIrMYaOEkpHQic8NBM3bfH-f0f5IEPcQZf0_YuAJOsYB0LEs2UgA7ieB1wngbMkflGV3nV6zn8vQJX6kdRs440aAUdZeks-vv8r0eAgy8')"></div>
+</div>
+<span class="text-[10px] font-terminal-sm text-white/40 block">SCENE 01: THE AWAKENING</span>
+</div>
+<div class="space-y-2 group">
+<div class="aspect-[4/3] bg-surface-container-high rounded overflow-hidden border border-white/5 group-hover:border-primary/50 transition-colors">
+<div class="w-full h-full bg-cover bg-center grayscale group-hover:grayscale-0 transition-all duration-500" data-alt="Cinematic storyboard scene 2: Close-up on a glowing data port on a character's neck. Intricate technological detail with soft shallow depth of field." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuB9fBL97qRHWjCvKUfuib8y6kYKUL1k1bEh8qTWICcqIBL5ylUD1XV835dJb5GynPEw3o1g9s4Fl5QFCaBo7jIujTg_luL4th953dvJclPzkwmimmHZbuxawjgpQHoXD9WKeQyT9b5DkELb0eZiem8z-t-JmwMo70uGZe0AtJYlWr0-DKpP31pw_VhzjdcH2EgOFnWLXniVwG73ZdcvzqyCUXxGyZXk3aIuxCyYu_95HNov5rddeLCUFeD5qFIZWi5RT1_nV7OyT1Q')"></div>
+</div>
+<span class="text-[10px] font-terminal-sm text-white/40 block">SCENE 02: THE UPLOAD</span>
+</div>
+<div class="space-y-2 group">
+<div class="aspect-[4/3] bg-surface-container-high rounded overflow-hidden border border-white/5 group-hover:border-primary/50 transition-colors">
+<div class="w-full h-full bg-cover bg-center grayscale group-hover:grayscale-0 transition-all duration-500" data-alt="Cinematic storyboard scene 3: High-speed chase through a neon-lit tunnel. Motion blur and dynamic light trails." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuAtsH2yi617xAX7VmRRRo-D4beWxjGjOkBiweAHZaKp2N6n08Rh_-Vs5gExyg7hMQyofpc10fQGCWzVH0gBvQxnA91jjrRypmb7ug0fzQORoOgar1D2o1iVb7O1uuIsDTEJQC8q1GyLIXpu4RO5jQqUszk0i2mYQLT0xZJIyjkHxg8J8tYnRn4aelcTz6IIHqQcBDi458Fiqlc5yN0AAiuZS7eyqxHabHWFJQpmwKHZMI-d8NAo9-yK7W8xLtFcwQyP7bEIAn44ybc')"></div>
+</div>
+<span class="text-[10px] font-terminal-sm text-white/40 block">SCENE 03: THE PURSUIT</span>
+</div>
+<div class="space-y-2 group">
+<div class="aspect-[4/3] bg-surface-container-high rounded overflow-hidden border border-white/5 group-hover:border-primary/50 transition-colors">
+<div class="w-full h-full bg-cover bg-center grayscale group-hover:grayscale-0 transition-all duration-500" data-alt="Cinematic storyboard scene 4: Intense face-off in a dark alleyway. Only the eyes are illuminated by a nearby holographic sign." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuC9-ikS6_gQLHMVsNxzxHwDvjTOthy6gcQejtN5MxEOEV6K8RAvqINAJ7bBLLsDOa95llBumpNjEDsvNvOty_YyiXLWOyaVG1Ut4yS3Mhx0IxikEjorPFpIHQSUZ-BT4hosdsXCTABq2UypcSnkNwBsAd_UiLafRBrLWhHRqHoxYmnOhbF086jIMivm30TqlEVmVKmZCXeo4Dast2YFAJS69j1wHmRcrxJhX7XfCjuOY34NqhgG7HJERl4rGIFJvTqw83NBTOBVZzo')"></div>
+</div>
+<span class="text-[10px] font-terminal-sm text-white/40 block">SCENE 04: THE CONFRONTATION</span>
+</div>
+<div class="space-y-2 group">
+<div class="aspect-[4/3] bg-surface-container-high rounded overflow-hidden border border-white/5 group-hover:border-primary/50 transition-colors">
+<div class="w-full h-full bg-cover bg-center grayscale group-hover:grayscale-0 transition-all duration-500" data-alt="Cinematic storyboard scene 5: Final sunrise over a reclaimed nature-filled city. Hopeful warm golden lighting mixed with cold concrete." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuAGDfrGBvfixROhxQr5RG-BufFZh7rhKayB3204Cn-RYiBDjwwHBmBwK3ewLeWf-NW9PTBhVME4KU_DuujdOPkPfLyMiFisTgNa8JqZ8x8TYSYjPFTPa4-X5S_loPqWEdZEkBYvLJkyYsBf2tWItyDQf1YizY4ZBxeC--BWgpq_m_7RUJGw1CA52GQ5-VEpLR2CI8fdPM5rtpK-6qsOcBujbxktkB4bX5JL7yXmWoy5k32xeg9NL_9bN9000e3trj3WA8R4YF_WpfE')"></div>
+</div>
+<span class="text-[10px] font-terminal-sm text-white/40 block">SCENE 05: THE RESOLUTION</span>
+</div>
+</div>
+</div>
+</div>
+</section>
+</main>
+<!-- Footer -->
+<footer class="w-full py-stack-lg px-margin-mobile md:px-margin-desktop flex flex-col md:flex-row justify-between items-center gap-stack-md border-t border-white/5 mt-24">
+<div class="flex flex-col items-center md:items-start gap-2">
+<span class="font-label-caps text-label-caps text-primary">SHOWRUNNER AI</span>
+<p class="font-terminal-sm text-[10px] text-on-surface-variant opacity-60">© 2024 SHOWRUNNER AI. POWERED BY QWEN 2.5 &amp; ALIBABA CLOUD. ALL RIGHTS RESERVED.</p>
+</div>
+<div class="flex gap-8">
+<a class="font-terminal-sm text-terminal-sm text-on-surface-variant hover:text-tertiary transition-colors" href="#">Terms of Service</a>
+<a class="font-terminal-sm text-terminal-sm text-on-surface-variant hover:text-tertiary transition-colors" href="#">Privacy Policy</a>
+<a class="font-terminal-sm text-terminal-sm text-on-surface-variant hover:text-tertiary transition-colors" href="#">Documentation</a>
+</div>
+</footer>
+<!-- JS Logic -->
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+<script>
+        let isGenerating = false;
+        let isComplete = false;
+
+        function selectGenre(btn) {
+            document.querySelectorAll('.genre-chip').forEach(b => {
+                b.classList.remove('bg-primary-container', 'text-white', 'border-primary-container');
+                b.classList.add('border-outline-variant', 'text-on-surface-variant');
+            });
+            btn.classList.remove('border-outline-variant', 'text-on-surface-variant');
+            btn.classList.add('bg-primary-container', 'text-white', 'border-primary-container');
+        }
+
+        function addLog(message) {
+            const terminal = document.getElementById('terminal-content');
+            const timestamp = new Date().toLocaleTimeString([], { hour12: false, minute: '2-digit', second: '2-digit' });
+            const log = document.createElement('div');
+            log.className = 'flex gap-4 animate-in fade-in slide-in-from-left-2 duration-300';
+            log.innerHTML = `<span class="flex-shrink-0 text-white/40">[${timestamp}]</span><span>${message}</span>`;
+            terminal.appendChild(log);
+            terminal.scrollTop = terminal.scrollHeight;
+        }
+
+        async function startProduction() {
+            if (isGenerating) return;
+            const prompt = document.getElementById('story-prompt').value;
+            if (!prompt) {
+                alert("Please enter a story prompt first.");
+                return;
+            }
+
+            isGenerating = true;
+            document.getElementById('input-section').classList.add('opacity-40', 'pointer-events-none');
+            const pipeline = document.getElementById('pipeline');
+            pipeline.classList.remove('hidden');
+            setTimeout(() => {
+                pipeline.classList.remove('opacity-0');
+                pipeline.scrollIntoView({ behavior: 'smooth' });
+            }, 100);
+
+            // Simulation of production flow
+            let progress = 0;
+            const agents = [
+                { id: 'agent-1', name: 'Scripting Core', time: 2000 },
+                { id: 'agent-2', name: 'Visual Framing', time: 3000 },
+                { id: 'agent-3', name: 'Logic Check', time: 2500 },
+                { id: 'agent-4', name: 'Neural Render', time: 6000 },
+                { id: 'agent-5', name: 'Final Polish', time: 3000 }
+            ];
+
+            for (let i = 0; i < agents.length; i++) {
+                const agent = agents[i];
+                const card = document.getElementById(agent.id);
+                const badge = card.querySelector('.status-badge');
+                const bar = card.querySelector('.progress');
+                
+                badge.innerText = 'ACTIVE';
+                badge.className = 'status-badge px-2 py-0.5 bg-primary-container text-[10px] font-bold rounded text-white animate-pulse';
+                addLog(`AGENT ${i+1}: ${agent.name.toUpperCase()} INITIALIZED...`);
+
+                let agentProgress = 0;
+                await new Promise(resolve => {
+                    const interval = setInterval(() => {
+                        agentProgress += 5;
+                        bar.style.width = agentProgress + '%';
+                        
+                        // Global progress calculation
+                        const overall = Math.round(((i * 20) + (agentProgress / 5)));
+                        updateGlobalProgress(overall);
+
+                        if (agentProgress >= 100) {
+                            clearInterval(interval);
+                            badge.innerText = 'COMPLETE';
+                            badge.className = 'status-badge px-2 py-0.5 bg-green-600 text-[10px] font-bold rounded text-white';
+                            addLog(`AGENT ${i+1}: TASK FINALIZED SUCCESSFULY.`);
+                            resolve();
+                        }
+                    }, agent.time / 20);
+                });
+            }
+
+            finishProduction();
+        }
+
+        function updateGlobalProgress(val) {
+            document.getElementById('overall-progress-bar').style.width = val + '%';
+            document.getElementById('overall-progress-text').innerText = val + '% COMPLETE';
+            
+            const circle = document.getElementById('circle-progress');
+            const circumference = 2 * Math.PI * 60;
+            const offset = circumference - (val / 100) * circumference;
+            circle.style.strokeDashoffset = offset;
+            document.getElementById('circle-percent').innerText = val + '%';
+        }
+
+        function finishProduction() {
+            isComplete = true;
+            isGenerating = false;
+            
+            // White flash effect
+            const flash = document.getElementById('white-flash');
+            flash.classList.add('reveal-flash');
+            
+            setTimeout(() => {
+                document.getElementById('pipeline').classList.add('hidden');
+                const completed = document.getElementById('completed-section');
+                completed.classList.remove('hidden');
+                completed.scrollIntoView({ behavior: 'smooth' });
+                
+                // Trigger Confetti
+                const duration = 3 * 1000;
+                const end = Date.now() + duration;
+
+                (function frame() {
+                    confetti({
+                        particleCount: 3,
+                        angle: 60,
+                        spread: 55,
+                        origin: { x: 0 },
+                        colors: ['#e50914', '#ffb95f']
+                    });
+                    confetti({
+                        particleCount: 3,
+                        angle: 120,
+                        spread: 55,
+                        origin: { x: 1 },
+                        colors: ['#e50914', '#ffb95f']
+                    });
+
+                    if (Date.now() < end) {
+                        requestAnimationFrame(frame);
+                    }
+                }());
+            }, 300);
+        }
+
+        // Initialize scroll reveal
+        window.addEventListener('scroll', () => {
+            const nav = document.querySelector('nav');
+            if (window.scrollY > 50) {
+                nav.classList.add('bg-black/80');
+            } else {
+                nav.classList.remove('bg-black/80');
+            }
+        });
+    </script>
+</body></html>

@@ -38,6 +38,7 @@ Scenes to check:
 {json.dumps(scenes, indent=2)}
 """
     
+    content = ""
     try:
         response = client.chat.completions.create(
             model="qwen-plus",
@@ -47,7 +48,8 @@ Scenes to check:
             ]
         )
         
-        content = response.choices[0].message.content.strip()
+        raw_content = response.choices[0].message.content
+        content = raw_content.strip() if raw_content else ""
         
         # Remove markdown JSON block formatting if present
         if content.startswith("```json"):

@@ -1,0 +1,50 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer utilities {
+  @keyframes scanline {
+      0% { transform: translateY(-100%); }
+      100% { transform: translateY(100%); }
+  }
+  .scanline-overlay::after {
+      content: "";
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: linear-gradient(to bottom, transparent 50%, rgba(0, 0, 0, 0.1) 51%);
+      background-size: 100% 4px;
+      pointer-events: none;
+      z-index: 10;
+  }
+  .shimmer {
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+      background-size: 200% 100%;
+      animation: shimmer 2s infinite linear;
+  }
+  @keyframes shimmer {
+      0% { background-position: -200% 0; }
+      100% { background-position: 200% 0; }
+  }
+  .reveal-flash {
+      animation: flash 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  @keyframes flash {
+      0% { background: white; opacity: 1; }
+      100% { background: transparent; opacity: 0; }
+  }
+  .stagger-in {
+      opacity: 0;
+      transform: translateY(20px);
+      animation: fadeInUp 0.8s forwards;
+  }
+  @keyframes fadeInUp {
+      to { opacity: 1; transform: translateY(0); }
+  }
+  .crimson-glow-border {
+      box-shadow: 0 0 15px -5px rgba(229, 9, 20, 0.5), inset 0 0 10px -5px rgba(229, 9, 20, 0.3);
+      border: 1px solid rgba(229, 9, 20, 0.4);
+  }
+  .production-gradient {
+      background: linear-gradient(90deg, #e50914 0%, #571bc1 50%, #ffb95f 100%);
+  }
+}

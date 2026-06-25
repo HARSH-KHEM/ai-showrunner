@@ -21,6 +21,7 @@ def generate_storyboard(script: str) -> List[Dict[str, Any]]:
     system_prompt = "You are a visual director. Convert scripts into detailed storyboards for AI video generation."
     user_message = f"Convert this script into a storyboard. Return ONLY a JSON array with no extra text. Each scene should have: scene_number, location, mood, visual_description (detailed prompt for video generation, describe lighting, camera angle, colors), characters, dialogue_summary\n\nScript:\n{script}"
     
+    content = ""
     try:
         response = client.chat.completions.create(
             model="qwen-plus",
@@ -30,7 +31,8 @@ def generate_storyboard(script: str) -> List[Dict[str, Any]]:
             ]
         )
         
-        content = response.choices[0].message.content.strip()
+        raw_content = response.choices[0].message.content
+        content = raw_content.strip() if raw_content else ""
         
         # Remove markdown JSON block formatting if present
         if content.startswith("```json"):
